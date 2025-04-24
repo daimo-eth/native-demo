@@ -1,74 +1,72 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import { StyleSheet, TouchableOpacity, Image, View, Dimensions, Text, ImageBackground } from 'react-native';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import * as WebBrowser from 'expo-web-browser';
+import { StatusBar } from 'expo-status-bar';
+
+const PROTOTYPE_URL = 'https://daimo-internal-mini-app.vercel.app/bridge?toAddress=0xaaaad870619639bece2979938ea0643ed6b360f5&refundAddress=0x4E04D236A5aEd4EB7d95E0514c4c8394c690BB58&toToken=0x79A02482A880bCE3F13e09Da970dC34db4CD24d1&sourceApp=world-wallet';
 
 export default function HomeScreen() {
+  const openBrowser = async () => {
+    try {
+      const presentationStyle = WebBrowser.WebBrowserPresentationStyle.PAGE_SHEET;
+      // Open browser as a modal that doesn't take the full screen
+      await WebBrowser.openBrowserAsync(PROTOTYPE_URL, {
+        presentationStyle: presentationStyle,
+        controlsColor: '#007AFF',
+        toolbarColor: '#F9F9F9',
+      });
+    } catch (error) {
+      console.error('Error opening browser:', error);
+    }
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
+    <View style={styles.container}>
+      <StatusBar style="light" />
+      <TouchableOpacity 
+        style={styles.fullScreenButton}
+        onPress={openBrowser}
+        activeOpacity={0.9}
+      >
+        <ImageBackground
+          source={require('@/assets/images/app-screenshot.png')}
+          style={styles.backgroundImage}
+          resizeMode="cover"
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      </TouchableOpacity>
+    </View>
   );
 }
 
+const { width, height } = Dimensions.get('window');
+
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
+    backgroundColor: '#000',
   },
-  stepContainer: {
-    gap: 8,
+  fullScreenButton: {
+    flex: 1,
+  },
+  backgroundImage: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'flex-end',
+  },
+  overlay: {
+    padding: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: 'white',
     marginBottom: 8,
+    textAlign: 'center',
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
+  subtitle: {
+    fontSize: 16,
+    color: '#ffffff',
+    textAlign: 'center',
+  }
 });

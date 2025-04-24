@@ -1,21 +1,26 @@
 {
   "expo": {
     "name": "WorldDemo",
-    "slug": "WorldDemo",
+    "slug": "worlddemo",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "daimodemo",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.daimo.worlddemo",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.daimo.worlddemo"
     },
     "web": {
       "bundler": "metro",
@@ -36,6 +41,15 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "252b3fbf-45ce-45dc-9b93-5a0bf47dea7f"
+      },
+      "router": {
+        "origin": false
+      }
+    },
+    "owner": "gianluk"
   }
 }
