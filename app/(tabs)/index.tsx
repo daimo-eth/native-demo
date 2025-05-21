@@ -1,39 +1,76 @@
-import { StyleSheet, TouchableOpacity, Image, View, Dimensions, Text, ImageBackground } from 'react-native';
-
-import * as WebBrowser from 'expo-web-browser';
+import { StyleSheet, TouchableOpacity, View, Dimensions, ImageBackground, Linking, Platform } from 'react-native';
+import { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
+import { WebView } from 'react-native-webview';
 
-const PROTOTYPE_URL = 'https://daimo-internal-mini-app.vercel.app/bridge?toAddress=0xaaaad870619639bece2979938ea0643ed6b360f5&refundAddress=0x4E04D236A5aEd4EB7d95E0514c4c8394c690BB58&toToken=0x79A02482A880bCE3F13e09Da970dC34db4CD24d1&sourceApp=world-wallet';
+const WEBVIEW_URL = 'https://miniapp.daimo.com/embed/world-wallet?toAddress=0xDa130a3573e1a5F54f1B7C2F324bf5d4F89b3c27&refundAddress=0xEEee8B1371f1664b7C2A8c111D6062b6576fA6f0&toToken=0x79A02482A880bCE3F13e09Da970dC34db4CD24d1';
+
+const images = [
+  require('@/assets/images/stable1.png'),
+  require('@/assets/images/stable2.png'),
+  require('@/assets/images/stable3.png'),
+];
 
 export default function HomeScreen() {
-  const openBrowser = async () => {
-    try {
-      const presentationStyle = WebBrowser.WebBrowserPresentationStyle.PAGE_SHEET;
-      // Open browser as a modal that doesn't take the full screen
-      await WebBrowser.openBrowserAsync(PROTOTYPE_URL, {
-        presentationStyle: presentationStyle,
-        controlsColor: '#007AFF',
-        toolbarColor: '#F9F9F9',
-      });
-    } catch (error) {
-      console.error('Error opening browser:', error);
+  const [imageIndex, setImageIndex] = useState(0);
+  const [showWebView, setShowWebView] = useState(false);
+
+  const handlePress = () => {
+    if (imageIndex === 0) {
+      setImageIndex(1);
+    } else if (imageIndex === 1) {
+      setImageIndex(2);
+      setShowWebView(true);
     }
   };
 
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.fullScreenButton}
-        onPress={openBrowser}
+        onPress={handlePress}
         activeOpacity={0.9}
+        disabled={showWebView}
       >
         <ImageBackground
-          source={require('@/assets/images/app-screenshot.png')}
+          source={images[imageIndex]}
           style={styles.backgroundImage}
-          resizeMode="cover"
+          resizeMode="contain"
         />
       </TouchableOpacity>
+      {showWebView && (
+        <View style={styles.overlay} pointerEvents="box-none">
+          <WebView
+            source={{ uri: WEBVIEW_URL }}
+            style={styles.webview}
+            originWhitelist={["*"]}
+            containerStyle={{ backgroundColor: 'transparent' }}
+            androidHardwareAccelerationDisabled={false}
+            androidLayerType="hardware"
+            javaScriptEnabled
+            domStorageEnabled
+            allowsInlineMediaPlayback
+            mediaPlaybackRequiresUserAction={false}
+            setSupportMultipleWindows={false}
+            injectedJavaScript={''}
+            onShouldStartLoadWithRequest={event => {
+              const customSchemes = [
+                'rainbow://',
+                'trust://',
+                'cbwallet://',
+                'familywallet://',
+                'zerion://',
+              ];
+              if (customSchemes.some(scheme => event.url.startsWith(scheme))) {
+                Linking.openURL(event.url);
+                return false; // Prevent WebView from loading it
+              }
+              return true;
+            }}
+          />
+        </View>
+      )}
     </View>
   );
 }
@@ -51,22 +88,18 @@ const styles = StyleSheet.create({
   backgroundImage: {
     width: '100%',
     height: '100%',
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   overlay: {
-    padding: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 10,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
-    marginBottom: 8,
-    textAlign: 'center',
+  webview: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'transparent',
+    opacity: 1,
+    zIndex: 2,
   },
-  subtitle: {
-    fontSize: 16,
-    color: '#ffffff',
-    textAlign: 'center',
-  }
 });
