@@ -3,12 +3,13 @@ import { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { WebView } from 'react-native-webview';
 
-const WEBVIEW_URL = 'https://miniapp.daimo.com/embed/world-wallet?toAddress=0xDa130a3573e1a5F54f1B7C2F324bf5d4F89b3c27&refundAddress=0xEEee8B1371f1664b7C2A8c111D6062b6576fA6f0&toToken=0x79A02482A880bCE3F13e09Da970dC34db4CD24d1';
+const WEBVIEW_URL = 'http://localhost:3000/embed?toAddress=0x4E04D236A5aEd4EB7d95E0514c4c8394c690BB58';
 
 const images = [
-  require('@/assets/images/stable1.png'),
-  require('@/assets/images/stable2.png'),
-  require('@/assets/images/stable3.png'),
+  require('@/assets/images/farcaster1.png'),
+  require('@/assets/images/farcaster2.png'),
+  require('@/assets/images/farcaster3.png'),
+  require('@/assets/images/farcaster4.png'),
 ];
 
 export default function HomeScreen() {
@@ -20,6 +21,8 @@ export default function HomeScreen() {
       setImageIndex(1);
     } else if (imageIndex === 1) {
       setImageIndex(2);
+    } else if (imageIndex === 2) {
+      setImageIndex(3);
       setShowWebView(true);
     }
   };
@@ -40,7 +43,7 @@ export default function HomeScreen() {
         />
       </TouchableOpacity>
       {showWebView && (
-        <View style={styles.overlay} pointerEvents="box-none">
+        <View style={styles.overlay}>
           <WebView
             source={{ uri: WEBVIEW_URL }}
             style={styles.webview}
