@@ -3,13 +3,10 @@ import { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { WebView } from 'react-native-webview';
 
-const WEBVIEW_URL = 'http://localhost:3000/embed?toAddress=0x4E04D236A5aEd4EB7d95E0514c4c8394c690BB58';
+const WEBVIEW_URL = 'https://miniapp.daimo.com/embed?toChain=10&toToken=0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85&toAddress=0x4E04D236A5aEd4EB7d95E0514c4c8394c690BB58&refundAddress=0x4E04D236A5aEd4EB7d95E0514c4c8394c690BB58&intent=Purchase%20Card&toUnits=10';
 
 const images = [
   require('@/assets/images/farcaster1.png'),
-  require('@/assets/images/farcaster2.png'),
-  require('@/assets/images/farcaster3.png'),
-  require('@/assets/images/farcaster4.png'),
 ];
 
 export default function HomeScreen() {
@@ -17,14 +14,7 @@ export default function HomeScreen() {
   const [showWebView, setShowWebView] = useState(false);
 
   const handlePress = () => {
-    if (imageIndex === 0) {
-      setImageIndex(1);
-    } else if (imageIndex === 1) {
-      setImageIndex(2);
-    } else if (imageIndex === 2) {
-      setImageIndex(3);
-      setShowWebView(true);
-    }
+    setShowWebView(true);
   };
 
   return (
@@ -57,19 +47,29 @@ export default function HomeScreen() {
             mediaPlaybackRequiresUserAction={false}
             setSupportMultipleWindows={false}
             injectedJavaScript={''}
-            onShouldStartLoadWithRequest={event => {
-              const customSchemes = [
-                'rainbow://',
-                'trust://',
-                'cbwallet://',
-                'familywallet://',
-                'zerion://',
-              ];
-              if (customSchemes.some(scheme => event.url.startsWith(scheme))) {
-                Linking.openURL(event.url);
-                return false; // Prevent WebView from loading it
+            onMessage={event => {
+              try {
+                const message = JSON.parse(event.nativeEvent.data);
+                if (message.source === 'daimo-pay') {
+                  if (message.type === 'modalClosed') {
+                    setShowWebView(false);
+                  } else if (message.type === 'modalOpened') {
+                    // Payment modal opened - could add analytics/logging here
+                    console.log('Daimo Pay modal opened');
+                  }
+                }
+              } catch (error) {
+                // Handle non-JSON messages or parsing errors
+                console.log('Received non-JSON message:', event.nativeEvent.data);
               }
-              return true;
+            }}
+            onShouldStartLoadWithRequest={event => {
+              // Only allow main Daimo Pay domain in WebView
+              if (event.url.includes('https://miniapp.daimo.com')) {
+                return true;
+              }
+              Linking.openURL(event.url);
+              return false;
             }}
           />
         </View>
